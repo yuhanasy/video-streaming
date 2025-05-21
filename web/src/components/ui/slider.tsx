@@ -43,7 +43,6 @@ const Slider = ({
     const offsetX = e.clientX - sliderRef.current.getBoundingClientRect().left;
     const newPosition = Math.max(0, Math.min(1, offsetX / width));
 
-    console.log({ newPosition });
     onClick(newPosition);
   };
 

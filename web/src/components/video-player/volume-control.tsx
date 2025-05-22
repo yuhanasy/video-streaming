@@ -1,6 +1,6 @@
 import React from "react";
 import { Volume2Icon, VolumeOffIcon } from "lucide-react";
-import Slider from "./ui/slider";
+import Slider from "@/components/ui/slider";
 
 type VolumeControlContextValue = {
   volume: number;

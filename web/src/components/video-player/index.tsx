@@ -12,9 +12,11 @@ interface VideoPlayerProps
   extends React.DetailedHTMLProps<
     React.VideoHTMLAttributes<HTMLVideoElement>,
     HTMLVideoElement
-  > {}
+  > {
+  srcObject?: MediaProvider | null | undefined;
+}
 
-const VideoPlayer = (props: VideoPlayerProps) => {
+const VideoPlayer = ({ srcObject, ...props }: VideoPlayerProps) => {
   const [isLoading, setLoading] = React.useState(false);
   const [isError, setError] = React.useState(false);
   const [isPlaying, setPlaying] = React.useState(!!props.autoPlay);
@@ -31,6 +33,11 @@ const VideoPlayer = (props: VideoPlayerProps) => {
   const playerRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
+
+  React.useEffect(() => {
+    if (!srcObject || !videoRef.current) return;
+    videoRef.current.srcObject = srcObject;
+  }, [srcObject]);
 
   const onLoadedData = () => {
     const canvas = canvasRef.current;

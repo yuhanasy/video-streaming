@@ -1,5 +1,7 @@
 import VideoPlayer from "@/components/video-player";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function App() {
   return (
     <div className="min-h-screen">
@@ -7,7 +9,7 @@ function App() {
         Canvas Video Player
       </div>
       <VideoPlayer
-        src="http://localhost:8080/video"
+        src={`${API_URL}/video`}
         crossOrigin="anonymous"
         preload="auto"
         autoPlay

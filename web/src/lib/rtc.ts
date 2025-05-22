@@ -6,6 +6,16 @@ type Message = {
 const memberID = Math.floor(Math.random() * 100000);
 console.log("MY MEMBER ID:", memberID);
 
+interface Callbacks {
+  setLocalStreamCb: (stream: MediaStream) => void;
+  setRemoteStreamCb: (stream: MediaStream) => void;
+  leaveRoom: () => void;
+}
+
+let pc: RTCPeerConnection;
+let localStream: MediaStream;
+let callbacks: Callbacks;
+
 const signaling = new BroadcastChannel("webrtc");
 const postMessage = (message: any) => {
   signaling.postMessage({
@@ -29,20 +39,13 @@ signaling.addEventListener("message", (e) => {
       return handleAnswer(message);
     case "candidate":
       return handleCandidate(message);
+    case "leave":
+      return callbacks.leaveRoom();
     default:
       console.log("Unhandled message", e);
       break;
   }
 });
-
-interface Callbacks {
-  setLocalStreamCb: (stream: MediaStream) => void;
-  setRemoteStreamCb: (stream: MediaStream) => void;
-}
-
-let pc: RTCPeerConnection;
-let localStream: MediaStream;
-let callbacks: Callbacks;
 
 const init = async (_callbacks: Callbacks) => {
   callbacks = _callbacks;
@@ -58,6 +61,10 @@ const init = async (_callbacks: Callbacks) => {
   callbacks.setLocalStreamCb(stream);
 
   postMessage({ type: "member-joined" });
+
+  return {
+    onLeave: handleLeave,
+  };
 };
 
 const createPeerConnection = () => {
@@ -138,4 +145,10 @@ const handleCandidate = async (candidate: RTCIceCandidateInit) => {
   await pc.addIceCandidate(candidate);
 };
 
-export { init };
+const handleLeave = () => {
+  postMessage({ type: "leave" });
+};
+
+window.addEventListener("beforeunload", handleLeave);
+
+export { init, handleLeave as onLeave };

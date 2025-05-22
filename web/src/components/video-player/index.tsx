@@ -7,6 +7,7 @@ import { FullscreenToggleContext } from "./fullscreen-toggle";
 import { SeekBarContext } from "./seek-bar";
 import Loading from "./loading";
 import Error from "./error";
+import { formatTime } from "@/lib/utils";
 
 interface VideoPlayerProps
   extends React.DetailedHTMLProps<
@@ -14,9 +15,10 @@ interface VideoPlayerProps
     HTMLVideoElement
   > {
   srcObject?: MediaProvider | null | undefined;
+  overlay?: boolean;
 }
 
-const VideoPlayer = ({ srcObject, ...props }: VideoPlayerProps) => {
+const VideoPlayer = ({ srcObject, overlay, ...props }: VideoPlayerProps) => {
   const [isLoading, setLoading] = React.useState(false);
   const [isError, setError] = React.useState(false);
   const [isPlaying, setPlaying] = React.useState(!!props.autoPlay);
@@ -70,6 +72,16 @@ const VideoPlayer = ({ srcObject, ...props }: VideoPlayerProps) => {
     const drawFrame = () => {
       ctx.clearRect(0, 0, width, height);
       ctx.drawImage(video, 0, 0, width, height);
+
+      if (overlay) {
+        ctx.font = "50px sans serif";
+        ctx.fillStyle = "white";
+        ctx.fillText(
+          formatTime(video.currentTime).toString(),
+          width / 2 - 50,
+          height / 2
+        );
+      }
 
       requestAnimationFrame(drawFrame);
     };

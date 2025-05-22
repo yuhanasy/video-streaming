@@ -10,6 +10,7 @@ const HomePage = () => {
       preload="auto"
       autoPlay
       controls
+      overlay
     />
   );
 };

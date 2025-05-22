@@ -1,43 +1,61 @@
 import VideoPlayer from "@/components/video-player";
+import { init } from "@/lib/rtc";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
-
-const signaling = new BroadcastChannel("webrtc");
-
-signaling.addEventListener("message", (e) => {
-  const message = e.data;
-  const type = message.type;
-
-  switch (type) {
-    case "offer":
-    case "answer":
-    case "candidate":
-    default:
-      console.log("Unhandled message", e);
-      break;
-  }
-});
-
-const init = async (setLocalStream: (stream: MediaStream) => void) => {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    audio: true,
-    video: true,
-  });
-  setLocalStream(stream);
-};
 
 const MeetingsPage = () => {
   const [localStream, setLocalStream] = useState<MediaStream>();
+  const [remoteStream, setRemoteStream] = useState<MediaStream>();
 
   useEffect(() => {
-    init((stream) => {
-      setLocalStream(stream);
+    init({
+      setLocalStreamCb: (stream) => setLocalStream(stream),
+      setRemoteStreamCb: (stream) => setRemoteStream(stream),
     });
   }, []);
 
   return (
-    <div className="grid grid-cols-2 gap-4 p-4">
-      <VideoPlayer id="me" srcObject={localStream} autoPlay playsInline />
-      <VideoPlayer id="friend" autoPlay playsInline />
+    <div className="relative p-4 h-full flex items-center justify-center">
+      <div
+        className={cn(
+          "transition-all ease-linear",
+          remoteStream
+            ? "absolute w-[25vw] bottom-8 right-8 z-10"
+            : "w-full h-full"
+        )}
+      >
+        <div
+          className={cn(
+            "relative",
+            remoteStream
+              ? "border-4 rounded-2xl border-black/10 overflow-hidden"
+              : ""
+          )}
+        >
+          <VideoPlayer
+            id="local"
+            srcObject={localStream}
+            autoPlay
+            playsInline
+          />
+          <span className="absolute bottom-0 right-0 text-sm p-2 bg-black/10">
+            Local Stream
+          </span>
+        </div>
+      </div>
+      {remoteStream ? (
+        <div className="relative w-full h-full">
+          <VideoPlayer
+            id="remote"
+            srcObject={remoteStream}
+            autoPlay
+            playsInline
+          />
+          <span className="absolute top-0 left-0 text-sm p-2 bg-black/10">
+            Remote Stream
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 };
